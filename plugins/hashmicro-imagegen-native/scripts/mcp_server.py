@@ -18,7 +18,7 @@ import uuid
 
 
 SERVER_NAME = "hashmicro-imagegen-native"
-SERVER_VERSION = "0.1.3"
+SERVER_VERSION = "0.1.4"
 SAFE_SIZES = {"1024x1024", "1536x1024", "1024x1536"}
 RATIO_SIZES = {
     "1:1": "1024x1024",

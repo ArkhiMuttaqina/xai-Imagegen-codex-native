@@ -1,7 +1,7 @@
 <div align="center">
   <img src="brand.png" alt="HashMicro XAI Image Gen for Codex" width="520">
 
-  # HashMicro XAI Image Gen for Codex v0.1.3
+  # HashMicro XAI Image Gen for Codex v0.1.4
 
   [![CI](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml)
   [![Latest Release](https://img.shields.io/github/v/release/ArkhiMuttaqina/xai-Imagegen-codex-native?display_name=tag&sort=semver)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/releases/latest)
@@ -36,9 +36,11 @@ Do not share your API key inside this ZIP. Each user should use their own creden
 
 ```text
 .
+├── AGENTS.md
 ├── brand.png
 ├── install.py
 ├── marketplace.json
+├── project.md
 ├── plugins/hashmicro-imagegen-native/
 │   ├── .codex-plugin/plugin.json
 │   ├── .mcp.json
@@ -46,11 +48,43 @@ Do not share your API key inside this ZIP. Each user should use their own creden
 │   └── skills/hashmicro-native-imagegen/SKILL.md
 ├── scripts/
 │   ├── build_release.py
+│   ├── bootstrap.py
 │   └── smoke_mcp.py
 └── tests/
 ```
 
 The runtime intentionally uses only Python's standard library.
+
+## One-line from an agent (Codex CLI / ChatGPT Desktop prompt)
+
+Paste this into any shell-capable AI agent:
+
+```text
+Install the latest HashMicro XAI Image Gen plugin for Codex from the official repository ArkhiMuttaqina/xai-Imagegen-codex-native. Detect my operating system and run the appropriate verified bootstrap command below. Do not ask me to paste credentials into chat. After installation, show me the exact local .env file path and tell me to fill XAI_URL and XAI_HASHMICRO_API_KEY there, then restart Codex and open a new task.
+
+macOS/Linux:
+curl -fsSL https://raw.githubusercontent.com/ArkhiMuttaqina/xai-Imagegen-codex-native/main/scripts/bootstrap.py | python3 -
+
+Windows PowerShell:
+curl.exe -fsSL https://raw.githubusercontent.com/ArkhiMuttaqina/xai-Imagegen-codex-native/main/scripts/bootstrap.py | py -
+```
+
+The bootstrap downloads the Latest GitHub Release, verifies its SHA-256 checksum, safely extracts it, installs or upgrades the plugin, and creates the credential file automatically.
+
+After it finishes, edit the path printed by the installer. The default location is:
+
+- Windows: `%USERPROFILE%\.codex\.env`
+- macOS/Linux: `~/.codex/.env`
+
+Fill these values locally:
+
+```dotenv
+XAI_URL="https://your-gateway.example"
+XAI_HASHMICRO_API_KEY="your-personal-key"
+XAI_IMAGE_MODEL="codex/gpt-5.6-sol"
+```
+
+Never paste the API key into an AI chat or commit the `.env` file.
 
 ## Install
 
@@ -113,7 +147,7 @@ To verify the result:
 codex plugin list
 ```
 
-Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at version `0.1.3`.
+Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at version `0.1.4`.
 
 ## Usage notes
 

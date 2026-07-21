@@ -13,11 +13,14 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "hashmicro-imagegen-native"
 MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 RELEASE_FILES = (
+    "AGENTS.md",
     "brand.png",
     "install.py",
     "marketplace.json",
+    "project.md",
     "README.md",
     "CHANGELOG.md",
+    "scripts/bootstrap.py",
     "plugins/hashmicro-imagegen-native/.mcp.json",
     "plugins/hashmicro-imagegen-native/.codex-plugin/plugin.json",
     "plugins/hashmicro-imagegen-native/scripts/mcp_server.py",

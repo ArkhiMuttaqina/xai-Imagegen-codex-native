@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Compile Python
-        run: python -m py_compile install.py plugins/hashmicro-imagegen-native/scripts/mcp_server.py scripts/smoke_mcp.py scripts/build_release.py scripts/versioning.py
+        run: python -m py_compile install.py plugins/hashmicro-imagegen-native/scripts/mcp_server.py scripts/bootstrap.py scripts/smoke_mcp.py scripts/build_release.py scripts/versioning.py
       - name: Unit tests
         run: python -m unittest discover -s tests -v
       - name: MCP smoke test

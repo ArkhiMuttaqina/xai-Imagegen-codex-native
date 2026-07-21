@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 from pathlib import Path
 import subprocess
+import tempfile
 import unittest
 
 
@@ -69,6 +71,23 @@ class InstallerTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.installer.run_codex(Path(r"C:\portable"), skip=False, assume_yes=False)
         self.assertEqual(recorded, [["codex", "plugin", "list"], ["codex", "plugin", "marketplace", "list"]])
+
+    def test_skip_credentials_creates_fillable_env_template(self):
+        with tempfile.TemporaryDirectory() as raw:
+            previous = os.environ.get("CODEX_HOME")
+            os.environ["CODEX_HOME"] = raw
+            try:
+                self.installer.update_env(skip=True)
+                env_path = Path(raw) / ".env"
+                values = self.installer.parse_env(env_path)
+                self.assertEqual(values["XAI_URL"], "")
+                self.assertEqual(values["XAI_HASHMICRO_API_KEY"], "")
+                self.assertEqual(values["XAI_IMAGE_MODEL"], "codex/gpt-5.6-sol")
+            finally:
+                if previous is None:
+                    os.environ.pop("CODEX_HOME", None)
+                else:
+                    os.environ["CODEX_HOME"] = previous
 
 
 if __name__ == "__main__":

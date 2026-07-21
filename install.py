@@ -17,6 +17,11 @@ import sys
 BUNDLE_NAME = "hashmicro-imagegen-share"
 PLUGIN_NAME = "hashmicro-imagegen-native"
 MARKETPLACE_NAME = "hashmicro-xai-local"
+ENV_DEFAULTS = {
+    "XAI_URL": "",
+    "XAI_HASHMICRO_API_KEY": "",
+    "XAI_IMAGE_MODEL": "codex/gpt-5.6-sol",
+}
 
 
 def format_command(parts: list[str]) -> str:
@@ -86,11 +91,37 @@ def parse_env(path: Path) -> dict[str, str]:
     return values
 
 
-def update_env(skip: bool) -> None:
-    if skip:
-        return
-    env_path = Path.home() / ".codex" / ".env"
+def codex_env_path() -> Path:
+    codex_home = os.getenv("CODEX_HOME", "").strip()
+    return (Path(codex_home).expanduser() if codex_home else Path.home() / ".codex") / ".env"
+
+
+def ensure_env_template() -> Path:
+    env_path = codex_env_path()
     env_path.parent.mkdir(parents=True, exist_ok=True)
+    lines = env_path.read_text(encoding="utf-8-sig").splitlines() if env_path.exists() else []
+    existing = {
+        line.split("=", 1)[0].strip()
+        for line in lines
+        if line.strip() and not line.lstrip().startswith("#") and "=" in line
+    }
+    missing = [key for key in ENV_DEFAULTS if key not in existing]
+    if missing:
+        if lines and lines[-1].strip():
+            lines.append("")
+        lines.append("# HashMicro XAI Image Gen")
+        lines.extend(f"{key}={json.dumps(ENV_DEFAULTS[key])}" for key in missing)
+        env_path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8", newline="\n")
+    return env_path
+
+
+def update_env(skip: bool) -> None:
+    env_path = ensure_env_template()
+    if skip:
+        print("\nCredential template is ready.")
+        print(f"Edit this file: {env_path}")
+        print("Fill XAI_URL and XAI_HASHMICRO_API_KEY, then restart Codex.")
+        return
     current = parse_env(env_path)
     url = os.getenv("XAI_URL") or current.get("XAI_URL") or input("XAI_URL: ").strip()
     key = os.getenv("XAI_HASHMICRO_API_KEY") or current.get("XAI_HASHMICRO_API_KEY")
