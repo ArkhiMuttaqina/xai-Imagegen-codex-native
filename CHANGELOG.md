@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.7 - 2026-07-21
+
+- Clarify first-time installation and repeatable update workflow
+
 ## 0.1.6 - 2026-07-21
 
 - Fix one-line installer marketplace discovery and failure handling

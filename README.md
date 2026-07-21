@@ -1,7 +1,7 @@
 <div align="center">
   <img src="brand.png" alt="HashMicro XAI Image Gen for Codex" width="520">
 
-  # HashMicro XAI Image Gen for Codex v0.1.6
+  # HashMicro XAI Image Gen for Codex v0.1.7
 
   [![CI](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml)
   [![Latest Release](https://img.shields.io/github/v/release/ArkhiMuttaqina/xai-Imagegen-codex-native?display_name=tag&sort=semver)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/releases/latest)
@@ -57,12 +57,19 @@ Do not share your API key inside this ZIP. Each user should use their own creden
 
 The runtime intentionally uses only Python's standard library.
 
-## One-line from an agent (Codex CLI / ChatGPT Desktop prompt)
+## Quick install or update
+
+The same bootstrap command handles both a first-time installation and future updates:
+
+- **First install:** downloads the Latest GitHub Release, verifies its SHA-256 checksum, installs the marketplace/plugin, and creates `~/.codex/.env` when it does not exist.
+- **Update:** downloads the newest Latest Release, replaces the installed plugin files, reinstalls the marketplace/plugin registration, and preserves the existing `~/.codex/.env` credentials.
+
+### One-line from an agent (Codex CLI / ChatGPT Desktop prompt)
 
 Paste this into any shell-capable AI agent:
 
 ```text
-Install the latest HashMicro XAI Image Gen plugin for Codex from the official repository ArkhiMuttaqina/xai-Imagegen-codex-native. Detect my operating system and run the appropriate verified bootstrap command below exactly once. Do not ask me to paste credentials into chat. If the command exits nonzero, report the exact error and stop; do not manually patch the downloaded or installed package. After a successful installation, show me the exact local .env file path and tell me to fill XAI_URL and XAI_HASHMICRO_API_KEY there, then restart Codex and open a new task.
+Install or update the HashMicro XAI Image Gen plugin for Codex to the latest release from the official repository ArkhiMuttaqina/xai-Imagegen-codex-native. Detect my operating system and run the appropriate verified bootstrap command below exactly once. Preserve my existing .env credentials during an update. Do not ask me to paste credentials into chat. If the command exits nonzero, report the exact error and stop; do not manually patch the downloaded or installed package. After it succeeds, show the installed plugin version and the exact local .env path. If required values are missing, tell me to fill XAI_URL and XAI_HASHMICRO_API_KEY in that file. Then tell me to restart Codex and open a new task.
 
 macOS/Linux:
 curl -fsSL https://raw.githubusercontent.com/ArkhiMuttaqina/xai-Imagegen-codex-native/main/scripts/bootstrap.py | python3 -
@@ -71,7 +78,23 @@ Windows PowerShell:
 curl.exe -fsSL https://raw.githubusercontent.com/ArkhiMuttaqina/xai-Imagegen-codex-native/main/scripts/bootstrap.py | py -
 ```
 
-The bootstrap downloads the Latest GitHub Release, verifies its SHA-256 checksum, safely extracts it, installs or upgrades the plugin, and creates the credential file automatically.
+### Run it directly
+
+Windows PowerShell:
+
+```powershell
+curl.exe -fsSL https://raw.githubusercontent.com/ArkhiMuttaqina/xai-Imagegen-codex-native/main/scripts/bootstrap.py | py -
+```
+
+macOS/Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ArkhiMuttaqina/xai-Imagegen-codex-native/main/scripts/bootstrap.py | python3 -
+```
+
+The bootstrap always resolves GitHub's Latest Release rather than trusting the repository folder name. It verifies the published checksum before safely extracting and installing the bundle.
+
+### After the first install
 
 After it finishes, edit the path printed by the installer. The default location is:
 
@@ -87,6 +110,29 @@ XAI_IMAGE_MODEL="codex/gpt-5.6-sol"
 ```
 
 Never paste the API key into an AI chat or commit the `.env` file.
+
+Restart Codex completely and open a new task so the newly installed plugin and MCP server are loaded.
+
+### Updating an existing install
+
+Run the same command or paste the same agent prompt again. You do not need to uninstall the previous version first.
+
+During an update, the installer:
+
+1. Downloads and verifies the current Latest Release.
+2. Replaces the local plugin bundle and refreshes Codex registration.
+3. Keeps the existing values in `~/.codex/.env`.
+4. Reports the installed version and asks you to restart Codex.
+
+Verify the active installation after restarting:
+
+```bash
+codex plugin list
+```
+
+Only one enabled `hashmicro-imagegen-native` entry should remain, using marketplace `hashmicro-xai-local` and the version shown by the [Latest Release badge](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/releases/latest).
+
+On Windows, close other running Codex tasks before updating. An active HashMicro MCP process may temporarily lock files in the plugin cache. If the update reports a locked-file or access-denied error, fully exit Codex, rerun the same PowerShell command in an external terminal, then reopen Codex.
 
 ## Install
 
@@ -139,7 +185,7 @@ XAI_IMAGE_TIMEOUT_SEC="600"
 XAI_IMAGE_JOB_TTL_SEC="3600"
 ```
 
-## Upgrade from an older local build
+## Migrating from an older or differently named local build
 
 The installer detects installed variants such as `hashmicro-imagegen-native@personal` and `hashmicro-imagegen-native@hashmicro-xai-local`. Approve the migration when prompted, or run `python3 install.py --yes`.
 
@@ -149,7 +195,7 @@ To verify the result:
 codex plugin list
 ```
 
-Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at version `0.1.6`.
+Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at the latest released version.
 
 ## Usage notes
 
