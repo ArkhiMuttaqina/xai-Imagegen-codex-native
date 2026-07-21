@@ -29,7 +29,15 @@ python scripts/smoke_mcp.py
 - Keep the plugin manifest version and MCP server version aligned.
 - Test Windows, macOS, and Linux behavior when changing paths, subprocesses, or installation logic.
 
+Choose the branch prefix according to release impact:
+
+- `fix/`, `bugfix/`, `hotfix/`, or `patch/` for a patch release.
+- `feat/` or `feature/` for a minor release.
+- `breaking/` or `major/` for a major release.
+- `docs/`, `chore/`, `ci/`, or `test/` when no release should be created.
+
+See `VERSIONING.md` for the complete automation flow.
+
 ## Live gateway tests
 
 Live image generation may incur usage or billing. Run it only with an approved test credential and clearly record the model, size, quality, and output location. Never make live gateway calls in pull-request CI.
-

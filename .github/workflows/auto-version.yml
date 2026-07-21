@@ -1,0 +1,96 @@
+name: Auto Version and Release
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version increment
+        required: true
+        type: choice
+        options: [patch, minor, major]
+      summary:
+        description: Changelog summary
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  version-and-release:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Select version increment
+        id: select
+        env:
+          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+          MANUAL_BUMP: ${{ inputs.bump }}
+        run: |
+          bump="$(python scripts/versioning.py classify --branch "$BRANCH_NAME" --manual "$MANUAL_BUMP")"
+          echo "bump=$bump" >> "$GITHUB_OUTPUT"
+          echo "Selected increment: $bump"
+
+      - name: Stop when branch does not request a release
+        if: steps.select.outputs.bump == 'none'
+        run: echo "Branch prefix does not request a release; main remains unchanged."
+
+      - name: Bump source version
+        if: steps.select.outputs.bump != 'none'
+        id: version
+        env:
+          SUMMARY: ${{ inputs.summary || github.event.pull_request.title }}
+        run: |
+          version="$(python scripts/versioning.py bump "${{ steps.select.outputs.bump }}" --summary "$SUMMARY")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Test release source
+        if: steps.select.outputs.bump != 'none'
+        run: |
+          python -m unittest discover -s tests -v
+          python scripts/smoke_mcp.py
+          python scripts/versioning.py check
+
+      - name: Commit and tag latest main
+        if: steps.select.outputs.bump != 'none'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md README.md plugins/hashmicro-imagegen-native/.codex-plugin/plugin.json plugins/hashmicro-imagegen-native/scripts/mcp_server.py
+          git commit -m "chore(release): $TAG"
+          git tag -a "$TAG" -m "$TAG"
+          git push origin main
+          git push origin "$TAG"
+
+      - name: Build release archive
+        if: steps.select.outputs.bump != 'none'
+        run: python scripts/build_release.py
+
+      - name: Publish latest GitHub Release
+        if: steps.select.outputs.bump != 'none'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh release create "$TAG" dist/*.zip dist/*.sha256.txt --generate-notes --latest --title "$TAG"
+

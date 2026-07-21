@@ -125,10 +125,21 @@ Then delete `~/.codex/local-plugins/hashmicro-imagegen-share` if desired. Removi
 ```bash
 python -m unittest discover -s tests -v
 python scripts/smoke_mcp.py
+python scripts/versioning.py check
 python scripts/build_release.py
 ```
 
 Live generation is not part of CI because it requires credentials and may incur usage or billing.
+
+## Automated releases
+
+`main` always contains the latest released source. Pull-request branch prefixes determine the next SemVer release:
+
+- `fix/*` → patch
+- `feat/*` → minor
+- `breaking/*` → major
+
+After an eligible pull request is merged, GitHub Actions updates the source version, creates `vX.Y.Z`, builds the ZIP and checksum, and publishes it as the Latest GitHub Release. See `VERSIONING.md` for branch aliases, manual releases, and required repository settings.
 
 ## License
 

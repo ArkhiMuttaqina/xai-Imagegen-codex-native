@@ -1,0 +1,42 @@
+name: Release Existing Tag
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Validate tag and source versions
+        run: python scripts/versioning.py check --tag "$GITHUB_REF_NAME"
+
+      - name: Test release source
+        run: |
+          python -m unittest discover -s tests -v
+          python scripts/smoke_mcp.py
+
+      - name: Build release archive
+        run: python scripts/build_release.py
+
+      - name: Publish latest GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists."
+          else
+            gh release create "$GITHUB_REF_NAME" dist/*.zip dist/*.sha256.txt --generate-notes --latest --title "$GITHUB_REF_NAME"
+          fi
