@@ -24,6 +24,7 @@ Validate `plugins/hashmicro-imagegen-native` with the Codex plugin validator whe
 - Keep runtime code compatible with Python 3.10+ and dependency-free unless explicitly approved.
 - Preserve Windows, macOS, and Linux support.
 - Never commit `.env`, API keys, gateway credentials, generated user images, or production URLs.
+- Preserve the proprietary license and copyright notices; do not relicense the project without written company authorization.
 - Do not silently switch image models. Prefer the requested model and surface configuration errors clearly.
 - Keep manifest and MCP server versions identical.
 - Add tests for behavioral changes.
@@ -42,4 +43,3 @@ See `VERSIONING.md` for the automated tag and GitHub Release flow.
 ## Installation behavior
 
 The one-line bootstrap downloads the latest GitHub Release, verifies SHA-256, extracts it safely, and runs `install.py --skip-credentials --yes`. The installer must create `~/.codex/.env` when missing and clearly direct the user to fill `XAI_URL` and `XAI_HASHMICRO_API_KEY`.
-

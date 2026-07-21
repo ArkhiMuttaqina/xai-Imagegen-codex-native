@@ -1,13 +1,14 @@
 <div align="center">
   <img src="brand.png" alt="HashMicro XAI Image Gen for Codex" width="520">
 
-  # HashMicro XAI Image Gen for Codex v0.1.4
+  # HashMicro XAI Image Gen for Codex v0.1.5
 
   [![CI](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml)
   [![Latest Release](https://img.shields.io/github/v/release/ArkhiMuttaqina/xai-Imagegen-codex-native?display_name=tag&sort=semver)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/releases/latest)
   [![Release Workflow](https://img.shields.io/github/actions/workflow/status/ArkhiMuttaqina/xai-Imagegen-codex-native/tag-release.yml?label=release)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/tag-release.yml)
   [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
   [![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-5E5E5E)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml)
+  [![License: Proprietary](https://img.shields.io/badge/license-Proprietary-red)](LICENSE)
 
   Native HashMicro XAI image generation and background editing for Codex.
 </div>
@@ -39,6 +40,7 @@ Do not share your API key inside this ZIP. Each user should use their own creden
 ├── AGENTS.md
 ├── brand.png
 ├── install.py
+├── LICENSE
 ├── marketplace.json
 ├── project.md
 ├── plugins/hashmicro-imagegen-native/
@@ -147,7 +149,7 @@ To verify the result:
 codex plugin list
 ```
 
-Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at version `0.1.4`.
+Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at version `0.1.5`.
 
 ## Usage notes
 
@@ -192,4 +194,8 @@ After an eligible pull request is merged, GitHub Actions updates the source vers
 
 ## License
 
-No open-source license is included yet. Treat this repository as private/internal until the team selects and adds the correct license.
+Copyright © 2026 HashMicro. All rights reserved.
+
+This project is proprietary and confidential. It is provided only for authorized HashMicro business use and is not open-source software. Copying, redistribution, sublicensing, publication, or external commercial use requires prior written permission from an authorized HashMicro representative.
+
+See the complete [HashMicro Proprietary License](LICENSE). The owning legal entity and final terms should be confirmed by the company's legal or management team before external distribution.

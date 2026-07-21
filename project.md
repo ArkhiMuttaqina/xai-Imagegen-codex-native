@@ -48,3 +48,7 @@ Only `XAI_URL` and `XAI_HASHMICRO_API_KEY` are mandatory. Credentials are user-s
 ## Release model
 
 `main` always represents the latest release source. Stable versions use tags such as `v0.1.4`, and every GitHub Release contains a ZIP plus its SHA-256 checksum.
+
+## License
+
+This repository is proprietary and confidential to HashMicro. It is not licensed for public redistribution or external commercial use. See `LICENSE` for the complete terms and obtain company legal or management approval before external distribution.

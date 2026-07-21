@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 - 2026-07-21
+
+- Add HashMicro proprietary license and distribution terms
+
 ## 0.1.4 - 2026-07-21
 
 - Add agent guidance and verified one-line installer bootstrap

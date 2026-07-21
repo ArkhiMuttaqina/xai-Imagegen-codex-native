@@ -28,6 +28,7 @@ python scripts/smoke_mcp.py
 - Update `CHANGELOG.md` for user-visible changes.
 - Keep the plugin manifest version and MCP server version aligned.
 - Test Windows, macOS, and Linux behavior when changing paths, subprocesses, or installation logic.
+- Contributions are accepted only for authorized HashMicro business purposes and remain subject to company intellectual-property and confidentiality policies.
 
 Choose the branch prefix according to release impact:
 
