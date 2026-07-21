@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8 - 2026-07-21
+
+- Add client-independent pre-push, CI, versioning, and verified release gates
+
 ## 0.1.7 - 2026-07-21
 
 - Clarify first-time installation and repeatable update workflow

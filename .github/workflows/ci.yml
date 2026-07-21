@@ -3,12 +3,20 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -16,18 +24,25 @@ jobs:
         python-version: ['3.10', '3.13', '3.14']
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Compile Python
-        run: python -m py_compile install.py plugins/hashmicro-imagegen-native/scripts/mcp_server.py scripts/bootstrap.py scripts/smoke_mcp.py scripts/smoke_install.py scripts/build_release.py scripts/versioning.py
-      - name: Unit tests
-        run: python -m unittest discover -s tests -v
-      - name: MCP smoke test
-        run: python scripts/smoke_mcp.py
-      - name: Version consistency
-        run: python scripts/versioning.py check
-      - name: Build release bundle
-        run: python scripts/build_release.py
-      - name: Installer smoke test
-        run: python scripts/smoke_install.py
+
+      - name: Run complete verification suite
+        run: python scripts/verify.py
+
+  required:
+    name: Required CI
+    if: always()
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm every platform test passed
+        env:
+          RESULT: ${{ needs.test.result }}
+        run: |
+          test "$RESULT" = "success" || {
+            echo "One or more platform/runtime jobs failed: $RESULT"
+            exit 1
+          }

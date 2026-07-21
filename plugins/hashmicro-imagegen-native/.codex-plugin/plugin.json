@@ -1,6 +1,6 @@
 {
   "name": "hashmicro-imagegen-native",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Portable native Codex image generation and background editing tools backed by the HashMicro XAI gateway.",
   "author": {
     "name": "HashMicro local integration"

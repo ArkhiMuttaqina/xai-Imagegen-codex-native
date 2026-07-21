@@ -48,7 +48,9 @@ Only `XAI_URL` and `XAI_HASHMICRO_API_KEY` are mandatory. Credentials are user-s
 
 ## Release model
 
-`main` always represents the latest release source. Stable versions use tags such as `v0.1.4`, and every GitHub Release contains a ZIP plus its SHA-256 checksum.
+`main` always represents the latest release source. Every local clone can enable the tracked pre-push verifier with `python scripts/setup_hooks.py`, and remote CI tests every push across the complete supported platform/runtime matrix. A successful non-release change on `main` is versioned only after tests pass; its tag then passes the full gate again before GitHub publishes the ZIP and SHA-256 checksum.
+
+The process is independent of the editing client. Changes from Codex, Hermes, OpenCode, OpenZsh, IDEs, and normal shells are covered as long as they enter the repository through Git.
 
 ## License
 

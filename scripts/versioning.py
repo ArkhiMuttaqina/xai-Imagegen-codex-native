@@ -61,6 +61,29 @@ def classify_branch(branch: str, manual: str = "") -> str:
     return "none"
 
 
+def classify_message(message: str) -> str:
+    normalized = message.strip().lower()
+    if "breaking change:" in normalized or re.match(r"^[a-z]+(?:\([^)]*\))?!:", normalized):
+        return "major"
+    if re.match(r"^feat(?:\([^)]*\))?:", normalized):
+        return "minor"
+    if re.match(r"^(fix|perf|refactor)(?:\([^)]*\))?:", normalized):
+        return "patch"
+    return "none"
+
+
+def select_release_bump(branch: str = "", message: str = "", manual: str = "") -> str:
+    if manual in {"patch", "minor", "major"}:
+        return manual
+    branch_bump = classify_branch(branch)
+    if branch_bump != "none":
+        return branch_bump
+    message_bump = classify_message(message)
+    if message_bump != "none":
+        return message_bump
+    return "patch"
+
+
 def check(tag: str = "") -> str:
     manifest = current_version()
     runtime = server_version()
@@ -121,6 +144,11 @@ def main() -> None:
     classify_parser.add_argument("--branch", default="")
     classify_parser.add_argument("--manual", default="")
 
+    select_parser = subparsers.add_parser("select")
+    select_parser.add_argument("--branch", default="")
+    select_parser.add_argument("--message", default="")
+    select_parser.add_argument("--manual", default="")
+
     bump_parser = subparsers.add_parser("bump")
     bump_parser.add_argument("part", choices=["patch", "minor", "major"])
     bump_parser.add_argument("--summary", default="Automated release.")
@@ -130,6 +158,8 @@ def main() -> None:
         print(check(args.tag))
     elif args.command == "classify":
         print(classify_branch(args.branch, args.manual))
+    elif args.command == "select":
+        print(select_release_bump(args.branch, args.message, args.manual))
     else:
         print(update_version(args.part, args.summary))
 

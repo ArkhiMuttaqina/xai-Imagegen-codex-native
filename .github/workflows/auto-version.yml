@@ -1,9 +1,9 @@
-name: Auto Version and Release
+name: Auto Version
 
 on:
-  pull_request:
-    branches: [main]
-    types: [closed]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
   workflow_dispatch:
     inputs:
       bump:
@@ -17,6 +17,7 @@ on:
         type: string
 
 permissions:
+  actions: read
   contents: write
 
 concurrency:
@@ -24,9 +25,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  version-and-release:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+  version:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,41 +43,70 @@ jobs:
         with:
           python-version: '3.13'
 
+      - name: Guard against stale or release commits
+        id: guard
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          current_sha="$(git rev-parse HEAD)"
+          subject="$(git log -1 --pretty=%s)"
+          proceed=true
+
+          if [[ "$EVENT_NAME" == "workflow_run" && "$current_sha" != "$TESTED_SHA" ]]; then
+            echo "A newer main commit exists; its own CI run will handle the release."
+            proceed=false
+          fi
+
+          if [[ "$subject" =~ ^chore\(release\):\ v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release commit detected; no second version bump is needed."
+            proceed=false
+          fi
+
+          echo "proceed=$proceed" >> "$GITHUB_OUTPUT"
+
+      - name: Test completed source before changing version or changelog
+        if: steps.guard.outputs.proceed == 'true'
+        run: python scripts/verify.py
+
       - name: Select version increment
+        if: steps.guard.outputs.proceed == 'true'
         id: select
         env:
-          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+          SOURCE_BRANCH: ${{ github.event.workflow_run.pull_requests[0].head.ref }}
           MANUAL_BUMP: ${{ inputs.bump }}
         run: |
-          bump="$(python scripts/versioning.py classify --branch "$BRANCH_NAME" --manual "$MANUAL_BUMP")"
+          commit_message="$(git log -1 --pretty=%B)"
+          bump="$(python scripts/versioning.py select --branch "$SOURCE_BRANCH" --message "$commit_message" --manual "$MANUAL_BUMP")"
           echo "bump=$bump" >> "$GITHUB_OUTPUT"
           echo "Selected increment: $bump"
 
-      - name: Stop when branch does not request a release
-        if: steps.select.outputs.bump == 'none'
-        run: echo "Branch prefix does not request a release; main remains unchanged."
-
-      - name: Bump source version
-        if: steps.select.outputs.bump != 'none'
+      - name: Update version and changelog after tests pass
+        if: steps.guard.outputs.proceed == 'true'
         id: version
         env:
-          SUMMARY: ${{ inputs.summary || github.event.pull_request.title }}
+          MANUAL_SUMMARY: ${{ inputs.summary }}
         run: |
-          version="$(python scripts/versioning.py bump "${{ steps.select.outputs.bump }}" --summary "$SUMMARY")"
+          summary="$MANUAL_SUMMARY"
+          if [[ -z "$summary" ]]; then
+            summary="$(git log -1 --pretty=%s)"
+          fi
+          version="$(python scripts/versioning.py bump "${{ steps.select.outputs.bump }}" --summary "$summary")"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
 
-      - name: Test release source
-        if: steps.select.outputs.bump != 'none'
-        run: |
-          python -m unittest discover -s tests -v
-          python scripts/smoke_mcp.py
-          python scripts/versioning.py check
-
-      - name: Commit and tag latest main
-        if: steps.select.outputs.bump != 'none'
+      - name: Validate final release source
+        if: steps.guard.outputs.proceed == 'true'
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          python scripts/versioning.py check --tag "$TAG"
+          python scripts/build_release.py
+          python scripts/smoke_install.py
+
+      - name: Commit version, changelog, and tag
+        if: steps.guard.outputs.proceed == 'true'
+        env:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           git config user.name "github-actions[bot]"
@@ -81,16 +116,3 @@ jobs:
           git tag -a "$TAG" -m "$TAG"
           git push origin main
           git push origin "$TAG"
-
-      - name: Build release archive
-        if: steps.select.outputs.bump != 'none'
-        run: python scripts/build_release.py
-
-      - name: Publish latest GitHub Release
-        if: steps.select.outputs.bump != 'none'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.version.outputs.tag }}
-        run: |
-          gh release create "$TAG" dist/*.zip dist/*.sha256.txt --generate-notes --latest --title "$TAG"
-

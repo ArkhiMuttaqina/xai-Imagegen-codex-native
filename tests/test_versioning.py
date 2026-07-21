@@ -48,6 +48,30 @@ class VersioningTests(unittest.TestCase):
     def test_manual_bump_overrides_branch(self):
         self.assertEqual(self.versioning.classify_branch("docs/readme", "minor"), "minor")
 
+    def test_commit_message_classification(self):
+        cases = {
+            "fix: repair installer": "patch",
+            "perf(mcp): reduce polling overhead": "patch",
+            "feat: add image variations": "minor",
+            "feat(api)!: replace gateway contract": "major",
+            "docs: explain updates\n\nBREAKING CHANGE: configuration moved": "major",
+            "Update README from another agent": "none",
+        }
+        for message, expected in cases.items():
+            with self.subTest(message=message):
+                self.assertEqual(self.versioning.classify_message(message), expected)
+
+    def test_release_selection_covers_unclassified_agent_changes(self):
+        self.assertEqual(
+            self.versioning.select_release_bump(message="Edited by Hermes without a conventional prefix"),
+            "patch",
+        )
+        self.assertEqual(self.versioning.select_release_bump(branch="feat/new-tool"), "minor")
+        self.assertEqual(
+            self.versioning.select_release_bump(branch="fix/small", message="feat: larger change", manual="major"),
+            "major",
+        )
+
     def test_source_versions_are_consistent(self):
         self.assertRegex(self.versioning.check(), r"^[0-9]+\.[0-9]+\.[0-9]+$")
 

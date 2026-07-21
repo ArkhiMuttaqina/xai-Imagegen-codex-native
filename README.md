@@ -1,7 +1,7 @@
 <div align="center">
   <img src="brand.png" alt="HashMicro XAI Image Gen for Codex" width="520">
 
-  # HashMicro XAI Image Gen for Codex v0.1.7
+  # HashMicro XAI Image Gen for Codex v0.1.8
 
   [![CI](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml)
   [![Latest Release](https://img.shields.io/github/v/release/ArkhiMuttaqina/xai-Imagegen-codex-native?display_name=tag&sort=semver)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/releases/latest)
@@ -219,25 +219,36 @@ Then delete `~/.codex/local-plugins/hashmicro-imagegen-share` if desired. Removi
 
 ## Development
 
+Enable the repository-managed pre-push test gate once per clone:
+
 ```bash
-python -m unittest discover -s tests -v
-python scripts/smoke_mcp.py
-python scripts/versioning.py check
-python scripts/build_release.py
-python scripts/smoke_install.py
+python scripts/setup_hooks.py
 ```
+
+Run the complete local gate at any time:
+
+```bash
+python scripts/verify.py
+```
+
+Every `git push` then runs the same unit, MCP, version, build, and installer checks before data is sent to GitHub. The hook is portable across Git Bash, macOS, and Linux, and automatically finds `python3`, `python`, or the Windows `py` launcher.
+
+Git hooks are local Git configuration and cannot securely auto-enable themselves after clone. Agents and contributors must run `python scripts/setup_hooks.py` once. Even when a local hook was not enabled, GitHub Actions still tests every pushed branch without path filters, so changes made by Codex, Hermes, OpenCode, OpenZsh, an IDE, or a normal shell enter the same remote gate.
 
 Live generation is not part of CI because it requires credentials and may incur usage or billing.
 
 ## Automated releases
 
-`main` always contains the latest released source. Pull-request branch prefixes determine the next SemVer release:
+`main` always contains the latest released source. Every change is tested before the version and changelog are updated. SemVer is selected in this order:
 
-- `fix/*` → patch
-- `feat/*` → minor
-- `breaking/*` → major
+- Manual release choice: `patch`, `minor`, or `major`
+- Branch prefixes: `fix/*` → patch, `feat/*` → minor, `breaking/*` → major
+- Conventional commits: `fix:` → patch, `feat:` → minor, and `type!:` or `BREAKING CHANGE:` → major
+- Any other successfully tested change → patch
 
-After an eligible pull request is merged, GitHub Actions updates the source version, creates `vX.Y.Z`, builds the ZIP and checksum, and publishes it as the Latest GitHub Release. See `VERSIONING.md` for branch aliases, manual releases, and required repository settings.
+CI runs on every push and pull request across the complete Windows/macOS/Linux matrix. A successful CI run for a non-release commit on `main` triggers the version workflow. It verifies the completed source again, updates the version and `CHANGELOG.md`, creates `vX.Y.Z`, and lets the tag workflow run the full release gate before publishing the ZIP and checksum as Latest.
+
+Configure the repository ruleset to require the `Required CI` status before merging into `main`. See `VERSIONING.md` for the complete tool-independent flow and repository settings.
 
 ## License
 

@@ -6,17 +6,23 @@ Guidance for AI coding agents working in this repository.
 
 This repository contains a cross-platform Codex plugin and its marketplace installer for HashMicro XAI image generation and editing.
 
-## Required checks
+## Required checks for every agent and shell
 
-Before committing changes, run:
+These rules are client-independent. They apply to Codex CLI/Desktop, Hermes, OpenCode, OpenZsh, manual shells, IDE integrations, and any other tool that changes this repository.
+
+After cloning once, enable the tracked pre-push hook:
 
 ```bash
-python -m unittest discover -s tests -v
-python scripts/smoke_mcp.py
-python scripts/versioning.py check
-python scripts/build_release.py
-python scripts/smoke_install.py
+python scripts/setup_hooks.py
 ```
+
+Before committing and before pushing any change, run:
+
+```bash
+python scripts/verify.py
+```
+
+The pre-push hook runs the same command automatically. GitHub Actions repeats it on every branch push and pull request across Windows, macOS, and Linux. Never claim completion when a required check is failing.
 
 Validate `plugins/hashmicro-imagegen-native` with the Codex plugin validator whenever the manifest or skill changes.
 
@@ -31,13 +37,14 @@ Validate `plugins/hashmicro-imagegen-native` with the Codex plugin validator whe
 - Add tests for behavioral changes.
 - Update README and changelog for user-visible changes.
 - Build release archives only through `scripts/build_release.py`.
+- Do not edit release versions or prepend `CHANGELOG.md` until the completed source has passed the full verification suite.
 
 ## Versioning
 
 - `fix/*`, `bugfix/*`, `hotfix/*`, `patch/*` → patch release.
 - `feat/*`, `feature/*` → minor release.
 - `breaking/*`, `major/*` → major release.
-- Documentation and CI-only branches do not automatically release.
+- Every successfully tested change reaching `main` receives a release. Branch names and Conventional Commit prefixes choose the SemVer increment; unclassified changes safely default to patch.
 
 See `VERSIONING.md` for the automated tag and GitHub Release flow.
 
