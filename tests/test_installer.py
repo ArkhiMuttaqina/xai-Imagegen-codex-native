@@ -89,6 +89,47 @@ class InstallerTests(unittest.TestCase):
                 else:
                     os.environ["CODEX_HOME"] = previous
 
+    def test_repository_has_canonical_marketplace_layout(self):
+        marketplace = self.installer.validate_bundle_layout(ROOT)
+        self.assertEqual(marketplace, ROOT / ".agents" / "plugins" / "marketplace.json")
+        self.assertFalse((ROOT / "marketplace.json").exists())
+
+    def test_install_orders_env_after_codex_install(self):
+        events = []
+        with tempfile.TemporaryDirectory() as raw:
+            destination = Path(raw) / "installed"
+            self.installer.validate_bundle_layout = lambda path: events.append(("validate", path)) or path
+            self.installer.copy_bundle = lambda source, target: events.append(("copy", source, target)) or target
+            self.installer.configure_mcp = lambda bundle: events.append(("configure", bundle))
+            self.installer.run_codex = lambda bundle, skip, assume_yes: events.append(("codex", bundle, skip, assume_yes))
+            self.installer.update_env = lambda skip: events.append(("env", skip))
+            self.installer.install_bundle(
+                ROOT,
+                destination,
+                skip_credentials=True,
+                skip_codex=False,
+                assume_yes=True,
+            )
+        self.assertEqual([event[0] for event in events], ["validate", "copy", "configure", "validate", "codex", "env"])
+
+    def test_invalid_bundle_fails_before_side_effects(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            destination = root / "installed"
+            touched = []
+            self.installer.copy_bundle = lambda source, target: touched.append("copy") or target
+            self.installer.run_codex = lambda bundle, skip, assume_yes: touched.append("codex")
+            self.installer.update_env = lambda skip: touched.append("env")
+            with self.assertRaises(SystemExit):
+                self.installer.install_bundle(
+                    root / "missing",
+                    destination,
+                    skip_credentials=True,
+                    skip_codex=False,
+                    assume_yes=True,
+                )
+            self.assertEqual(touched, [])
+
 
 if __name__ == "__main__":
     unittest.main()

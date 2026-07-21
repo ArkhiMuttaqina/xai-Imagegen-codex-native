@@ -55,6 +55,17 @@ def safe_extract(archive_path: Path, destination: Path) -> None:
         archive.extractall(destination)
 
 
+def run_installer(installer: Path) -> None:
+    command = [sys.executable, str(installer), "--skip-credentials", "--yes"]
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as exc:
+        raise SystemExit(
+            f"Installer failed with exit code {exc.returncode}. Review the error above; "
+            "the bootstrap did not apply a fallback patch."
+        ) from None
+
+
 def main() -> None:
     print(f"Fetching latest release from https://github.com/{REPOSITORY} ...")
     release = json.loads(download(LATEST_RELEASE_API).decode("utf-8"))
@@ -75,10 +86,7 @@ def main() -> None:
         installers = list(extracted.glob("*/install.py"))
         if len(installers) != 1:
             raise SystemExit("Release archive did not contain exactly one installer.")
-        subprocess.run(
-            [sys.executable, str(installers[0]), "--skip-credentials", "--yes"],
-            check=True,
-        )
+        run_installer(installers[0])
 
     codex_home = os.getenv("CODEX_HOME", "").strip()
     env_path = ((Path(codex_home).expanduser() if codex_home else Path.home() / ".codex") / ".env").resolve()

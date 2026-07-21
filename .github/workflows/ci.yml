@@ -13,14 +13,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.10', '3.13']
+        python-version: ['3.10', '3.13', '3.14']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Compile Python
-        run: python -m py_compile install.py plugins/hashmicro-imagegen-native/scripts/mcp_server.py scripts/bootstrap.py scripts/smoke_mcp.py scripts/build_release.py scripts/versioning.py
+        run: python -m py_compile install.py plugins/hashmicro-imagegen-native/scripts/mcp_server.py scripts/bootstrap.py scripts/smoke_mcp.py scripts/smoke_install.py scripts/build_release.py scripts/versioning.py
       - name: Unit tests
         run: python -m unittest discover -s tests -v
       - name: MCP smoke test
@@ -29,3 +29,5 @@ jobs:
         run: python scripts/versioning.py check
       - name: Build release bundle
         run: python scripts/build_release.py
+      - name: Installer smoke test
+        run: python scripts/smoke_install.py

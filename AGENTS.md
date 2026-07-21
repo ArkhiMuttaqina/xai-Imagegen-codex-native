@@ -15,6 +15,7 @@ python -m unittest discover -s tests -v
 python scripts/smoke_mcp.py
 python scripts/versioning.py check
 python scripts/build_release.py
+python scripts/smoke_install.py
 ```
 
 Validate `plugins/hashmicro-imagegen-native` with the Codex plugin validator whenever the manifest or skill changes.

@@ -15,7 +15,7 @@ Provide native MCP image generation and background image-editing tools for Codex
 - Linux
 - Python 3.10 and newer
 
-GitHub Actions validates Windows, macOS, and Linux using Python 3.10 and 3.13.
+GitHub Actions validates Windows, macOS, and Linux using Python 3.10, 3.13, and 3.14.
 
 ## Main components
 
@@ -24,6 +24,7 @@ GitHub Actions validates Windows, macOS, and Linux using Python 3.10 and 3.13.
 | `plugins/hashmicro-imagegen-native/scripts/mcp_server.py` | Dependency-free stdio MCP server |
 | `plugins/hashmicro-imagegen-native/.codex-plugin/plugin.json` | Codex plugin manifest and current version |
 | `plugins/hashmicro-imagegen-native/skills/` | Agent routing and usage instructions |
+| `.agents/plugins/marketplace.json` | Codex marketplace manifest discovered by the CLI |
 | `install.py` | Cross-platform local marketplace and plugin installer |
 | `scripts/bootstrap.py` | One-line latest-release downloader and verified installer |
 | `scripts/build_release.py` | Deterministic release ZIP and checksum builder |

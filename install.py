@@ -24,6 +24,46 @@ ENV_DEFAULTS = {
 }
 
 
+def marketplace_manifest(bundle: Path) -> Path:
+    return bundle / ".agents" / "plugins" / "marketplace.json"
+
+
+def validate_bundle_layout(bundle: Path) -> Path:
+    root = bundle.resolve()
+    marketplace_path = marketplace_manifest(root)
+    if not marketplace_path.is_file():
+        raise SystemExit(f"Missing Codex marketplace manifest: {marketplace_path}")
+    try:
+        marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SystemExit(f"Invalid Codex marketplace manifest: {exc}") from exc
+    if marketplace.get("name") != MARKETPLACE_NAME:
+        raise SystemExit(f"Marketplace name must be {MARKETPLACE_NAME!r}")
+    entries = [entry for entry in marketplace.get("plugins", []) if entry.get("name") == PLUGIN_NAME]
+    if len(entries) != 1:
+        raise SystemExit(f"Marketplace must contain exactly one {PLUGIN_NAME!r} entry")
+    source = entries[0].get("source") or {}
+    if source.get("source") != "local" or source.get("path") != f"./plugins/{PLUGIN_NAME}":
+        raise SystemExit("Marketplace plugin source must use the canonical local plugin path")
+
+    plugin = (root / "plugins" / PLUGIN_NAME).resolve()
+    if root not in plugin.parents or not plugin.is_dir():
+        raise SystemExit(f"Plugin directory is missing or unsafe: {plugin}")
+    manifest_path = plugin / ".codex-plugin" / "plugin.json"
+    server_path = plugin / "scripts" / "mcp_server.py"
+    skill_path = plugin / "skills" / "hashmicro-native-imagegen" / "SKILL.md"
+    for required in (manifest_path, server_path, skill_path):
+        if not required.is_file():
+            raise SystemExit(f"Required plugin file is missing: {required}")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SystemExit(f"Invalid plugin manifest: {exc}") from exc
+    if manifest.get("name") != PLUGIN_NAME or not manifest.get("version"):
+        raise SystemExit("Plugin manifest name/version is invalid")
+    return marketplace_path
+
+
 def format_command(parts: list[str]) -> str:
     if os.name == "nt":
         return subprocess.list2cmdline(parts)
@@ -205,7 +245,25 @@ def run_codex(bundle: Path, *, skip: bool, assume_yes: bool) -> None:
 
     run_capture(["codex", "plugin", "marketplace", "add", str(bundle)])
     run_capture(["codex", "plugin", "add", f"{PLUGIN_NAME}@{MARKETPLACE_NAME}"])
-    print(f"Marketplace: {bundle / 'marketplace.json'}")
+    print(f"Marketplace: {marketplace_manifest(bundle)}")
+
+
+def install_bundle(
+    source: Path,
+    destination: Path,
+    *,
+    skip_credentials: bool,
+    skip_codex: bool,
+    assume_yes: bool,
+) -> Path:
+    validate_bundle_layout(source)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    bundle = copy_bundle(source, destination)
+    configure_mcp(bundle)
+    validate_bundle_layout(bundle)
+    run_codex(bundle, skip=skip_codex, assume_yes=assume_yes)
+    update_env(skip_credentials)
+    return bundle
 
 
 def main() -> None:
@@ -217,11 +275,13 @@ def main() -> None:
 
     source = Path(__file__).resolve().parent
     destination = Path.home() / ".codex" / "local-plugins" / BUNDLE_NAME
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    bundle = copy_bundle(source, destination)
-    configure_mcp(bundle)
-    update_env(args.skip_credentials)
-    run_codex(bundle, skip=args.skip_codex, assume_yes=args.yes)
+    bundle = install_bundle(
+        source,
+        destination,
+        skip_credentials=args.skip_credentials,
+        skip_codex=args.skip_codex,
+        assume_yes=args.yes,
+    )
     print("\nInstalled. Restart Codex and open a new task to use the plugin.")
     print(f"Installed files: {bundle}")
 

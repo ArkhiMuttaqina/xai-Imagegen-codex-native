@@ -5,6 +5,7 @@ import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
 
 
@@ -51,6 +52,12 @@ class BootstrapTests(unittest.TestCase):
                 bundle.writestr("../escape.txt", "bad")
             with self.assertRaises(SystemExit):
                 self.bootstrap.safe_extract(archive, destination)
+
+    def test_installer_failure_is_reported_without_fallback(self):
+        error = self.bootstrap.subprocess.CalledProcessError(7, ["python", "install.py"])
+        with mock.patch.object(self.bootstrap.subprocess, "run", side_effect=error):
+            with self.assertRaisesRegex(SystemExit, "exit code 7.*did not apply a fallback patch"):
+                self.bootstrap.run_installer(Path("install.py"))
 
 
 if __name__ == "__main__":

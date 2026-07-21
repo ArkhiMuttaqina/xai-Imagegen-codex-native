@@ -17,7 +17,7 @@ RELEASE_FILES = (
     "brand.png",
     "install.py",
     "LICENSE",
-    "marketplace.json",
+    ".agents/plugins/marketplace.json",
     "project.md",
     "README.md",
     "CHANGELOG.md",

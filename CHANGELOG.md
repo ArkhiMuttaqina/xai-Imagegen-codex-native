@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6 - 2026-07-21
+
+- Fix one-line installer marketplace discovery and failure handling
+
 ## 0.1.5 - 2026-07-21
 
 - Add HashMicro proprietary license and distribution terms

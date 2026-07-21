@@ -1,7 +1,7 @@
 <div align="center">
   <img src="brand.png" alt="HashMicro XAI Image Gen for Codex" width="520">
 
-  # HashMicro XAI Image Gen for Codex v0.1.5
+  # HashMicro XAI Image Gen for Codex v0.1.6
 
   [![CI](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml)
   [![Latest Release](https://img.shields.io/github/v/release/ArkhiMuttaqina/xai-Imagegen-codex-native?display_name=tag&sort=semver)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/releases/latest)
@@ -15,7 +15,7 @@
 
 Portable ZIP bundle for Windows, macOS, and Linux. The MCP server uses only the Python standard library; no `pip install` is required.
 
-The CI badge covers the selected build matrix: Windows, macOS, and Linux on Python 3.10 and 3.13. A green badge means all six platform/runtime jobs passed on `main`.
+The CI badge covers the selected build matrix: Windows, macOS, and Linux on Python 3.10, 3.13, and 3.14. A green badge means all nine platform/runtime jobs passed on `main`.
 
 ## What's new
 
@@ -41,7 +41,7 @@ Do not share your API key inside this ZIP. Each user should use their own creden
 ├── brand.png
 ├── install.py
 ├── LICENSE
-├── marketplace.json
+├── .agents/plugins/marketplace.json
 ├── project.md
 ├── plugins/hashmicro-imagegen-native/
 │   ├── .codex-plugin/plugin.json
@@ -62,7 +62,7 @@ The runtime intentionally uses only Python's standard library.
 Paste this into any shell-capable AI agent:
 
 ```text
-Install the latest HashMicro XAI Image Gen plugin for Codex from the official repository ArkhiMuttaqina/xai-Imagegen-codex-native. Detect my operating system and run the appropriate verified bootstrap command below. Do not ask me to paste credentials into chat. After installation, show me the exact local .env file path and tell me to fill XAI_URL and XAI_HASHMICRO_API_KEY there, then restart Codex and open a new task.
+Install the latest HashMicro XAI Image Gen plugin for Codex from the official repository ArkhiMuttaqina/xai-Imagegen-codex-native. Detect my operating system and run the appropriate verified bootstrap command below exactly once. Do not ask me to paste credentials into chat. If the command exits nonzero, report the exact error and stop; do not manually patch the downloaded or installed package. After a successful installation, show me the exact local .env file path and tell me to fill XAI_URL and XAI_HASHMICRO_API_KEY there, then restart Codex and open a new task.
 
 macOS/Linux:
 curl -fsSL https://raw.githubusercontent.com/ArkhiMuttaqina/xai-Imagegen-codex-native/main/scripts/bootstrap.py | python3 -
@@ -149,7 +149,7 @@ To verify the result:
 codex plugin list
 ```
 
-Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at version `0.1.5`.
+Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at version `0.1.6`.
 
 ## Usage notes
 
@@ -178,6 +178,7 @@ python -m unittest discover -s tests -v
 python scripts/smoke_mcp.py
 python scripts/versioning.py check
 python scripts/build_release.py
+python scripts/smoke_install.py
 ```
 
 Live generation is not part of CI because it requires credentials and may incur usage or billing.
