@@ -1,6 +1,20 @@
-# HashMicro XAI Image Gen for Codex v0.1.2
+<div align="center">
+  <img src="brand.png" alt="HashMicro XAI Image Gen for Codex" width="520">
+
+  # HashMicro XAI Image Gen for Codex v0.1.3
+
+  [![CI](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml)
+  [![Latest Release](https://img.shields.io/github/v/release/ArkhiMuttaqina/xai-Imagegen-codex-native?display_name=tag&sort=semver)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/releases/latest)
+  [![Release Workflow](https://img.shields.io/github/actions/workflow/status/ArkhiMuttaqina/xai-Imagegen-codex-native/tag-release.yml?label=release)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/tag-release.yml)
+  [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+  [![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-5E5E5E)](https://github.com/ArkhiMuttaqina/xai-Imagegen-codex-native/actions/workflows/ci.yml)
+
+  Native HashMicro XAI image generation and background editing for Codex.
+</div>
 
 Portable ZIP bundle for Windows, macOS, and Linux. The MCP server uses only the Python standard library; no `pip install` is required.
+
+The CI badge covers the selected build matrix: Windows, macOS, and Linux on Python 3.10 and 3.13. A green badge means all six platform/runtime jobs passed on `main`.
 
 ## What's new
 
@@ -22,6 +36,7 @@ Do not share your API key inside this ZIP. Each user should use their own creden
 
 ```text
 .
+├── brand.png
 ├── install.py
 ├── marketplace.json
 ├── plugins/hashmicro-imagegen-native/
@@ -98,7 +113,7 @@ To verify the result:
 codex plugin list
 ```
 
-Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at version `0.1.2`.
+Only one enabled `hashmicro-imagegen-native` install should remain, from marketplace `hashmicro-xai-local`, at version `0.1.3`.
 
 ## Usage notes
 

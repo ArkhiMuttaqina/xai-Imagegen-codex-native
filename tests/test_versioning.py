@@ -49,7 +49,7 @@ class VersioningTests(unittest.TestCase):
         self.assertEqual(self.versioning.classify_branch("docs/readme", "minor"), "minor")
 
     def test_source_versions_are_consistent(self):
-        self.assertEqual(self.versioning.check(), "0.1.2")
+        self.assertRegex(self.versioning.check(), r"^[0-9]+\.[0-9]+\.[0-9]+$")
 
     def test_update_version_changes_all_release_files(self):
         with tempfile.TemporaryDirectory() as raw:

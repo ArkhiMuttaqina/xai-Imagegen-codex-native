@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3 - 2026-07-21
+
+- Add branded README and cross-platform build badges
+
 ## 0.1.2 - 2026-07-21
 
 - Added safe migration detection for older/personal HashMicro plugin installs.

@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "hashmicro-imagegen-native"
 MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 RELEASE_FILES = (
+    "brand.png",
     "install.py",
     "marketplace.json",
     "README.md",
@@ -53,4 +54,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
