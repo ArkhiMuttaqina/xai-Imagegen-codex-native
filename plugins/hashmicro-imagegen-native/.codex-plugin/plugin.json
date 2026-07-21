@@ -1,0 +1,25 @@
+{
+  "name": "hashmicro-imagegen-native",
+  "version": "0.1.2",
+  "description": "Portable native Codex image generation and background editing tools backed by the HashMicro XAI gateway.",
+  "author": {
+    "name": "HashMicro local integration"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "HashMicro Native Image Gen",
+    "shortDescription": "Generate and edit images through HashMicro XAI.",
+    "longDescription": "Adds portable native MCP image tools with aspect-ratio mapping, background edits, and recoverable local output paths.",
+    "developerName": "HashMicro local integration",
+    "category": "Productivity",
+    "capabilities": [
+      "Image generation",
+      "Image editing"
+    ],
+    "defaultPrompt": [
+      "Generate an image through HashMicro XAI.",
+      "Edit this image through HashMicro XAI."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

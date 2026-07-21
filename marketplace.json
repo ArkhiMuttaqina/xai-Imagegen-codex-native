@@ -1,0 +1,20 @@
+{
+  "name": "hashmicro-xai-local",
+  "interface": {
+    "displayName": "HashMicro XAI Local"
+  },
+  "plugins": [
+    {
+      "name": "hashmicro-imagegen-native",
+      "source": {
+        "source": "local",
+        "path": "./plugins/hashmicro-imagegen-native"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
